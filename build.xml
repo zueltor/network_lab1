@@ -1,0 +1,58 @@
+<project>
+    <property name="src.dir"     value="src"/>
+    <property name="build.dir"   value="build/"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="jar.dir"     value="${build.dir}/jar"/>
+
+    <property name="test.src.dir"   value="test"/>
+    <property name="test.build.dir" value="${build.dir}/test"/>
+
+    <property name="lib.dir" value="lib/"/>
+
+	<!-- set jar name here -->
+	<property name="serverjar.path"    value="${jar.dir}/server.jar"/>
+    <property name="clientjar.path"    value="${jar.dir}/client.jar"/>
+	<!-- Change your main class here: -->
+	<property name="server.class"  value="ru.nsu.g.avoronkov.clientserver.server.Main" />
+    <property name="client.class"  value="ru.nsu.g.avoronkov.clientserver.client.Main" />
+
+    <path id="classpath.test">
+        <pathelement location="${lib.dir}/junit-4.12.jar"/>
+        <pathelement location="${lib.dir}/hamcrest-core-1.3.jar"/>
+        <pathelement location="${classes.dir}"/>
+    </path>
+
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}">
+            <classpath refid="classpath.test"/>
+        </javac>
+		<copy todir="${classes.dir}">
+			<fileset dir="${src.dir}">
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+    </target>
+
+    <target name="serverjar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${serverjar.path}" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${server.class}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="clientjar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${clientjar.path}" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${client.class}"/>
+            </manifest>
+        </jar>
+    </target>
+</project>
