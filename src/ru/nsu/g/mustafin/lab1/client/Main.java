@@ -12,16 +12,16 @@ public class Main {
         Sender sender=new Sender(group,s,6789);
         sender.start();
 
-        Listener listener=new Listener(group,s,6789);
-        listener.start();
+        //Listener listener=new Listener(group,s,6789);
+        //listener.start();
         try {
-            Thread.sleep(10000);
+            Thread.sleep(100000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         s.leaveGroup(group);
         System.out.println("woke up, gg");
         sender.interrupt();
-        listener.interrupt();
+        //listener.interrupt();
     }
 }

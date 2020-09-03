@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Arrays;
 
 public class Listener extends Thread {
     private InetAddress group;
@@ -15,10 +16,10 @@ public class Listener extends Thread {
         port=p;
     }
     public void recv() throws IOException {
-        byte[] buf = new byte[1000];
+        byte[] buf = new byte[100];
         DatagramPacket recv = new DatagramPacket(buf, buf.length);
         socket.receive(recv);
-        System.out.println("recved "+new String(recv.getData()));
+        System.out.println(new String(recv.getData()));
     }
 
 

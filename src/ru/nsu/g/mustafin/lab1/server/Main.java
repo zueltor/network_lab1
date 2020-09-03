@@ -1,31 +1,34 @@
 package ru.nsu.g.mustafin.lab1.server;
 
+import ru.nsu.g.mustafin.lab1.client.Listener;
+import ru.nsu.g.mustafin.lab1.client.Sender;
+
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
-        int port = 10881;
-        System.err.printf("Staring server at :%d\n", port);
+    public static void main(String[] args) throws IOException {
+        String msg = "Hello";
+        InetAddress group = InetAddress.getByName("228.5.6.7");
+        MulticastSocket s = new MulticastSocket(6789);
+        s.joinGroup(group);
+        //Sender sender=new Sender(group,s,6789);
+        //sender.start();
+
+        Listener listener=new Listener(group,s,6789);
+        listener.start();
         try {
-            var serverSocket = new ServerSocket(port);
-            while (true) {
-                try (var socket = serverSocket.accept()) {
-                    String data = "";
-                    var input = new Scanner(socket.getInputStream());
-                    if (input.hasNext()) {
-                        data = input.nextLine();
-                    }
-                    System.err.printf("Input = %s\n", data);
-                    var output = new PrintStream(socket.getOutputStream());
-                    output.println("Hello client!");
-                }
-            }
-        } catch (IOException e) {
+            Thread.sleep(100000);
+        } catch (InterruptedException e) {
             e.printStackTrace();
-            System.exit(1);
         }
+        s.leaveGroup(group);
+        System.out.println("woke up, gg");
+        //sender.interrupt();
+        listener.interrupt();
     }
 }
