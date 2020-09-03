@@ -1,4 +1,4 @@
-package ru.nsu.g.avoronkov.clientserver.server;
+package ru.nsu.g.mustafin.lab1.server;
 
 import java.io.IOException;
 import java.io.PrintStream;

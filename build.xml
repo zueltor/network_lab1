@@ -13,8 +13,8 @@
 	<property name="serverjar.path"    value="${jar.dir}/server.jar"/>
     <property name="clientjar.path"    value="${jar.dir}/client.jar"/>
 	<!-- Change your main class here: -->
-	<property name="server.class"  value="ru.nsu.g.avoronkov.clientserver.server.Main" />
-    <property name="client.class"  value="ru.nsu.g.avoronkov.clientserver.client.Main" />
+	<property name="server.class"  value="ru.nsu.g.mustafin.lab1.server.Main" />
+    <property name="client.class"  value="ru.nsu.g.mustafin.lab1.client.Main" />
 
     <path id="classpath.test">
         <pathelement location="${lib.dir}/junit-4.12.jar"/>
