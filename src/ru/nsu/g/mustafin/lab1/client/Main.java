@@ -5,21 +5,22 @@ import java.net.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        String msg = "Hello";
-        InetAddress group = InetAddress.getByName("228.5.6.7");
-        MulticastSocket s = new MulticastSocket(6789);
-        s.joinGroup(group);
-        Sender sender=new Sender(group,s,6789);
+        InetAddress mcastaddress = InetAddress.getByName("228.5.6.7");
+        if(!mcastaddress.isMulticastAddress()){
+            System.err.printf("%s is not a multicast address\n",mcastaddress.getHostAddress());
+            return;
+        }
+
+        Sender sender=new Sender(mcastaddress,6789);
         sender.start();
 
-        //Listener listener=new Listener(group,s,6789);
-        //listener.start();
+        Listener listener=new Listener(mcastaddress,6789);
+        listener.start();
         try {
             Thread.sleep(100000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        s.leaveGroup(group);
         System.out.println("woke up, gg");
         sender.interrupt();
         //listener.interrupt();

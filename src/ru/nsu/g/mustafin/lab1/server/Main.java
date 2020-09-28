@@ -19,7 +19,7 @@ public class Main {
         //Sender sender=new Sender(group,s,6789);
         //sender.start();
 
-        Listener listener=new Listener(group,s,6789);
+        Listener listener=new Listener(group,6789);
         listener.start();
         try {
             Thread.sleep(100000);

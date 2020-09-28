@@ -10,22 +10,31 @@ public class Listener extends Thread {
     private InetAddress group;
     private MulticastSocket socket;
     private int port;
-    public Listener(InetAddress g, MulticastSocket s, int p){
-        group=g;
-        socket=s;
-        port=p;
+
+    public Listener(InetAddress g, int p) {
+        group = g;
+        try {
+            socket = new MulticastSocket(p);
+            socket.joinGroup(g);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(0);
+        }
+        port = p;
     }
+
     public void recv() throws IOException {
         byte[] buf = new byte[100];
         DatagramPacket recv = new DatagramPacket(buf, buf.length);
         socket.receive(recv);
-        System.out.println(new String(recv.getData()));
+        String message=new String(recv.getData()).trim()+" from " + recv.getSocketAddress();
+        System.out.println(message);
     }
 
 
     @Override
     public void run() {
-        while(!isInterrupted()){
+        while (!isInterrupted()) {
             try {
                 recv();
             } catch (IOException e) {

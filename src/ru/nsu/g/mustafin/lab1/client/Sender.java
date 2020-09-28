@@ -1,30 +1,44 @@
 package ru.nsu.g.mustafin.lab1.client;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
+import java.net.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class Sender extends Thread{
-    private InetAddress group;
+public class Sender extends Thread {
     private MulticastSocket socket;
-    private int port;
-    public Sender(InetAddress g, MulticastSocket s, int p){
-        group=g;
-        socket=s;
-        port=p;
-    }
-    public void send() throws IOException {
+    private List<NetworkInterface> networkInterfaces;
+    private DatagramPacket packet;
+
+    public Sender(InetAddress g, int p) {
+        try {
+            socket = new MulticastSocket();
+            networkInterfaces = NetworkInterface.networkInterfaces().filter(networkInterface -> {
+                try {
+                    return networkInterface.isUp() && !networkInterface.isLoopback() && networkInterface.supportsMulticast();
+                } catch (SocketException e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }).collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(0);
+        }
         String msg = "Hello";
-        socket.send(new DatagramPacket(msg.getBytes(), msg.length(),
-                group, port));
-        System.out.println("sent "+msg);
+        packet = new DatagramPacket(msg.getBytes(), msg.length(), g, p);
     }
 
+    public void send() throws IOException {
+        for (var netif : networkInterfaces) {
+            socket.setNetworkInterface(netif);
+            socket.send(packet);
+        }
+    }
 
     @Override
     public void run() {
-        while(!isInterrupted()){
+        while (!isInterrupted()) {
             try {
                 send();
                 sleep(2000);
