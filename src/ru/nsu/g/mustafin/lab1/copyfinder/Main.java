@@ -26,6 +26,7 @@ public class Main {
             return false;
         }).collect(Collectors.toList());
 
+        System.out.println("Available network interfaces:");
         for (var netif : allNetworkInterfaces) {
             System.out.println(netif);
         }
@@ -33,25 +34,29 @@ public class Main {
         List<NetworkInterface> networkInterfaces = new ArrayList<>();
         String netifname;
 
-        if (args.length == 0) {
-            System.out.println("Choose network interface");
-            Scanner scanner = new Scanner(System.in);
-            netifname = scanner.nextLine();
-        } else {
-            netifname = args[0];
-        }
-
-        boolean found_any = false;
-        for (var netif : allNetworkInterfaces) {
-            if (netif.getName().contains(netifname)) {
-                found_any = true;
-                networkInterfaces.add(netif);
-                break;
-            }
-        }
-
-        if (!found_any) {
+        if (allNetworkInterfaces.size() == 1) {
             networkInterfaces = allNetworkInterfaces;
+        } else {
+            if (args.length == 0) {
+                System.out.println("Choose network interface");
+                Scanner scanner = new Scanner(System.in);
+                netifname = scanner.nextLine();
+            } else {
+                netifname = args[0];
+            }
+
+            boolean found_any = false;
+            for (var netif : allNetworkInterfaces) {
+                if (netif.getName().contains(netifname)) {
+                    found_any = true;
+                    networkInterfaces.add(netif);
+                    break;
+                }
+            }
+
+            if (!found_any) {
+                networkInterfaces = allNetworkInterfaces;
+            }
         }
 
         System.out.println("Chosen network interface(s): ");
