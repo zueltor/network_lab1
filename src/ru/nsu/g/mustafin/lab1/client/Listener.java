@@ -26,7 +26,9 @@ public class Listener extends Thread {
     public void recv() throws IOException {
         byte[] buf = new byte[100];
         DatagramPacket recv = new DatagramPacket(buf, buf.length);
+        System.out.println("recving");
         socket.receive(recv);
+        System.out.println("recved");
         String message=new String(recv.getData()).trim()+" from " + recv.getSocketAddress();
         System.out.println(message);
     }
