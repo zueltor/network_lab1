@@ -1,26 +1,18 @@
-package ru.nsu.g.mustafin.lab1.client;
+package ru.nsu.g.mustafin.lab1.copyfinder;
 
 import java.io.IOException;
 import java.net.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Sender extends Thread {
     private MulticastSocket socket;
     private List<NetworkInterface> networkInterfaces;
     private DatagramPacket packet;
 
-    public Sender(InetAddress g, int p) {
+    public Sender(InetAddress g,List<NetworkInterface> networkInterfaces, int p) {
         try {
+            this.networkInterfaces=networkInterfaces;
             socket = new MulticastSocket();
-            networkInterfaces = NetworkInterface.networkInterfaces().filter(networkInterface -> {
-                try {
-                    return networkInterface.isUp() && !networkInterface.isLoopback() && networkInterface.supportsMulticast();
-                } catch (SocketException e) {
-                    e.printStackTrace();
-                }
-                return false;
-            }).collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(0);

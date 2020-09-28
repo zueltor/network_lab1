@@ -1,33 +1,35 @@
-package ru.nsu.g.mustafin.lab1.client;
+package ru.nsu.g.mustafin.lab1.copyfinder;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.util.Arrays;
+import java.net.*;
+import java.util.List;
 
 public class Listener extends Thread {
     private InetAddress group;
     private MulticastSocket socket;
     private int port;
 
-    public Listener(InetAddress g, int p) {
+    public Listener(InetAddress g,List<NetworkInterface> networkInterfaces, int p) {
         group = g;
         try {
             socket = new MulticastSocket(p);
-            socket.joinGroup(g);
+            InetSocketAddress inetSocketAddress=new InetSocketAddress(g,p);
+            for(var netif:networkInterfaces){
+                socket.joinGroup(inetSocketAddress,netif);
+            }
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(0);
         }
+        //socket.joinGroup(g);
         port = p;
     }
 
     public void recv() throws IOException {
         byte[] buf = new byte[100];
-        DatagramPacket recv = new DatagramPacket(buf, buf.length);
-        socket.receive(recv);
-        String message=new String(recv.getData()).trim()+" from " + recv.getSocketAddress();
+        DatagramPacket packet = new DatagramPacket(buf, buf.length);
+        socket.receive(packet);
+        String message=new String(packet.getData()).trim()+" from " + packet.getSocketAddress();
         System.out.println(message);
     }
 

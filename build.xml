@@ -14,7 +14,7 @@
     <property name="clientjar.path"    value="${jar.dir}/client.jar"/>
 	<!-- Change your main class here: -->
 	<property name="server.class"  value="ru.nsu.g.mustafin.lab1.server.Main" />
-    <property name="client.class"  value="ru.nsu.g.mustafin.lab1.client.Main" />
+    <property name="client.class"  value="ru.nsu.g.mustafin.lab1.copyfinder.Main" />
 
     <path id="classpath.test">
         <pathelement location="${lib.dir}/junit-4.12.jar"/>
