@@ -33,7 +33,6 @@ public class Sender extends Thread {
         for (var netif : networkInterfaces) {
             socket.setNetworkInterface(netif);
             socket.send(packet);
-            System.out.println("sent");
         }
     }
 
