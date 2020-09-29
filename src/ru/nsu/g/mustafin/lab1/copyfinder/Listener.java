@@ -35,13 +35,13 @@ public class Listener extends Thread {
         socket.setSoTimeout((int) timeout);
         socket.receive(packet);
         String message = new String(packet.getData()).trim();
-        if (message.equals(secretMessage)) {
+        //if (message.equals(secretMessage)) {
             SocketAddress socketAddress = packet.getSocketAddress();
             var prev_value = copiesOnline.put(socketAddress, System.currentTimeMillis());
             if (prev_value == null) {
                 toPrintCopiesList = true;
             }
-        }
+        //}
         //System.out.println(message);
     }
 
