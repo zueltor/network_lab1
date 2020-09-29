@@ -14,14 +14,14 @@ public class Listener extends Thread {
     private final String secretMessage;
     private boolean toPrintCopiesList = false;
 
-    public Listener(final InetAddress mcastaddress, final List<NetworkInterface> networkInterfaces,
-                    final int port, final String secretMessage) throws IOException {
+    public Listener(final InetAddress mcastaddress, final MulticastSocket socket,
+                    final int port, final String secretMessage) {
         this.secretMessage = secretMessage;
-        this.socket = new MulticastSocket(port);
-        final InetSocketAddress inetSocketAddress = new InetSocketAddress(mcastaddress, port);
+        this.socket=socket;// = new MulticastSocket(port);
+        /*final InetSocketAddress inetSocketAddress = new InetSocketAddress(mcastaddress, port);
         for (final var netif : networkInterfaces) {
             this.socket.joinGroup(inetSocketAddress, netif);
-        }
+        }*/
         final byte[] buf = new byte[100];
         this.packet = new DatagramPacket(buf, buf.length);
         this.copiesOnline = new HashMap<>();
