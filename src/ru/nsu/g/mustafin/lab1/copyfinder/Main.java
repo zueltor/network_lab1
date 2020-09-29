@@ -57,11 +57,10 @@ public class Main {
         final MulticastSocket socket;
         try {
             socket = new MulticastSocket(port);
-            socket.joinGroup(mcastAddress);
-            /*final InetSocketAddress inetSocketAddress = new InetSocketAddress(mcastAddress, port);
+            final InetSocketAddress inetSocketAddress = new InetSocketAddress(mcastAddress, port);
             for (final var netif : networkInterfaces) {
                 socket.joinGroup(inetSocketAddress, netif);
-            }*/
+            }
         } catch (final IOException e) {
             System.err.println("Could not create multicast socket");
             return;
