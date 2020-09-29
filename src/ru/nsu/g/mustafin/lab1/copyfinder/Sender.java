@@ -18,10 +18,10 @@ public class Sender extends Thread {
     }
 
     private void multicastSend() throws IOException {
-        //for (final var netif : this.networkInterfaces) {
-          //  this.socket.setNetworkInterface(netif);
+        for (final var netif : this.networkInterfaces) {
+            this.socket.setNetworkInterface(netif);
             this.socket.send(this.packet);
-        //}
+        }
     }
 
     @Override
