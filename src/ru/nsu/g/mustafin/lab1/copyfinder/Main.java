@@ -54,20 +54,21 @@ public class Main {
         System.out.println("Chosen network interface(s): ");
         printInterfaces(networkInterfaces);
 
-        final MulticastSocket socket;
+        final Sender sender;
+        final Listener listener;
         try {
-            socket = new MulticastSocket(port);
-            final InetSocketAddress inetSocketAddress = new InetSocketAddress(mcastAddress, port);
-            for (final var netif : networkInterfaces) {
-                socket.joinGroup(inetSocketAddress, netif);
-            }
-        } catch (final IOException e) {
-            System.err.println("Could not create multicast socket");
+            sender = new Sender(mcastAddress, networkInterfaces, port, secretMessage);
+        }catch(final IOException e){
+            System.err.println("Error occurred while creating sender thread");
+            return;
+        }
+        try {
+            listener = new Listener(mcastAddress, networkInterfaces, port, secretMessage);
+        }catch(final IOException e){
+            System.err.println("Error occurred while creating listener thread");
             return;
         }
 
-        final Sender sender = new Sender(mcastAddress, networkInterfaces, socket, port, secretMessage);
-        final Listener listener = new Listener(mcastAddress, socket, port, secretMessage);
         sender.start();
         listener.start();
     }

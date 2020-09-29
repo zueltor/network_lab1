@@ -10,10 +10,10 @@ public class Sender extends Thread {
     private final DatagramPacket packet;
     private final static long SEND_DELAY = 2000;
 
-    public Sender(final InetAddress mcastaddress, final List<NetworkInterface> networkInterfaces, final MulticastSocket socket,
-                  final int port, final String secretMessage) {
+    public Sender(final InetAddress mcastaddress, final List<NetworkInterface> networkInterfaces,
+                  final int port, final String secretMessage) throws IOException {
         this.networkInterfaces = networkInterfaces;
-        this.socket = socket;
+        this.socket = new MulticastSocket();
         this.packet = new DatagramPacket(secretMessage.getBytes(), secretMessage.length(), mcastaddress, port);
     }
 

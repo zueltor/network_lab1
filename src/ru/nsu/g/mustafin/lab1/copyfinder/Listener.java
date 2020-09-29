@@ -14,14 +14,14 @@ public class Listener extends Thread {
     private final String secretMessage;
     private boolean toPrintCopiesList = false;
 
-    public Listener(final InetAddress mcastaddress, final MulticastSocket socket,
-                    final int port, final String secretMessage) {
+    public Listener(final InetAddress mcastaddress, final List<NetworkInterface> networkInterfaces,
+                    final int port, final String secretMessage) throws IOException {
         this.secretMessage = secretMessage;
-        this.socket=socket;// = new MulticastSocket(port);
-        /*final InetSocketAddress inetSocketAddress = new InetSocketAddress(mcastaddress, port);
+        this.socket = new MulticastSocket(port);
+        final InetSocketAddress inetSocketAddress = new InetSocketAddress(mcastaddress, port);
         for (final var netif : networkInterfaces) {
             this.socket.joinGroup(inetSocketAddress, netif);
-        }*/
+        }
         final byte[] buf = new byte[100];
         this.packet = new DatagramPacket(buf, buf.length);
         this.copiesOnline = new HashMap<>();
@@ -65,16 +65,16 @@ public class Listener extends Thread {
 
     public void printCopiesList() {
         final var old_size = this.copiesOnline.size();
-        this.copiesOnline.entrySet().removeIf(copy -> System.currentTimeMillis() - copy.getValue() >= this.COPY_DEAD_TIMEOUT);
+        this.copiesOnline.entrySet().removeIf(copy -> System.currentTimeMillis() - copy.getValue() >= COPY_DEAD_TIMEOUT);
         final var new_size = this.copiesOnline.size();
         if (new_size != old_size || this.toPrintCopiesList) {
             if (this.copiesOnline.size() > 0) {
-                System.out.println("Copies online: " + this.copiesOnline.size());
+                System.out.println("Copies online: " + copiesOnline.size());
             }
-            for (final var copy : this.copiesOnline.entrySet()) {
+            for (final var copy : copiesOnline.entrySet()) {
                 System.out.println(copy.getKey());
             }
-            this.toPrintCopiesList = false;
+            toPrintCopiesList = false;
         }
     }
 }
