@@ -8,6 +8,8 @@ public class Sender extends Thread {
     private MulticastSocket socket;
     private List<NetworkInterface> networkInterfaces;
     private DatagramPacket packet;
+    private final String secretMessage = "mde18201";
+    private final long SEND_DELAY=2000;
 
     public Sender(InetAddress g,List<NetworkInterface> networkInterfaces, int p) {
         try {
@@ -17,7 +19,7 @@ public class Sender extends Thread {
             e.printStackTrace();
             System.exit(0);
         }
-        String msg = "Hello";
+        String msg = secretMessage;
         packet = new DatagramPacket(msg.getBytes(), msg.length(), g, p);
     }
 
@@ -33,7 +35,7 @@ public class Sender extends Thread {
         while (!isInterrupted()) {
             try {
                 send();
-                sleep(2000);
+                sleep(SEND_DELAY);
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
                 return;

@@ -2,47 +2,86 @@ package ru.nsu.g.mustafin.lab1.copyfinder;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.HashMap;
 import java.util.List;
 
 public class Listener extends Thread {
-    private InetAddress group;
     private MulticastSocket socket;
-    private int port;
+    private DatagramPacket packet;
+    private final long PRINT_DELAY = 5000;
+    private final long COPY_DEAD_TIMEOUT = 4000;
+    private HashMap<SocketAddress, Long> copiesOnline;
+    private final String secretMessage = "mde18201";
+    private boolean toPrintCopiesList = false;
 
-    public Listener(InetAddress g,List<NetworkInterface> networkInterfaces, int p) {
-        group = g;
+    public Listener(InetAddress group, List<NetworkInterface> networkInterfaces, int port) {
         try {
-            socket = new MulticastSocket(p);
-            InetSocketAddress inetSocketAddress=new InetSocketAddress(g,p);
-            for(var netif:networkInterfaces){
-                socket.joinGroup(inetSocketAddress,netif);
+            socket = new MulticastSocket(port);
+            InetSocketAddress inetSocketAddress = new InetSocketAddress(group, port);
+            for (var netif : networkInterfaces) {
+                socket.joinGroup(inetSocketAddress, netif);
             }
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(0);
         }
+        byte[] buf = new byte[100];
+        packet = new DatagramPacket(buf, buf.length);
+        copiesOnline = new HashMap<>();
         //socket.joinGroup(g);
-        port = p;
     }
 
-    public void recv() throws IOException {
-        byte[] buf = new byte[100];
-        DatagramPacket packet = new DatagramPacket(buf, buf.length);
+    public void recv(long timeout) throws IOException {
+        socket.setSoTimeout((int) timeout);
         socket.receive(packet);
-        String message=new String(packet.getData()).trim()+" from " + packet.getSocketAddress();
-        System.out.println(message);
+        String message = new String(packet.getData()).trim();
+        if (message.equals(secretMessage)) {
+            SocketAddress socketAddress = packet.getSocketAddress();
+            var prev_value = copiesOnline.put(socketAddress, System.currentTimeMillis());
+            if (prev_value == null) {
+                toPrintCopiesList = true;
+            }
+        }
+        //System.out.println(message);
     }
 
 
     @Override
     public void run() {
+        long current_time = System.currentTimeMillis();
+        long next_print_time = PRINT_DELAY + current_time;
+        long receive_timeout;
         while (!isInterrupted()) {
             try {
-                recv();
+                current_time = System.currentTimeMillis();
+                if (next_print_time - current_time <= 0 || toPrintCopiesList) {
+                    printCopiesList();
+                    current_time = System.currentTimeMillis();
+                    next_print_time = PRINT_DELAY + current_time;
+                } else {
+                    receive_timeout = next_print_time - current_time;
+                    recv(receive_timeout);
+                }
+            } catch (SocketTimeoutException ignored) {
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
             }
+        }
+    }
+
+    public void printCopiesList() {
+        var old_size = copiesOnline.size();
+        copiesOnline.entrySet().removeIf(copy -> System.currentTimeMillis() - copy.getValue() >= COPY_DEAD_TIMEOUT);
+        var new_size = copiesOnline.size();
+        if (new_size != old_size || toPrintCopiesList) {
+            if (copiesOnline.size() > 0) {
+                System.out.println("Copies online: " + copiesOnline.size());
+            }
+            for (var copy : copiesOnline.entrySet()) {
+                System.out.println(copy.getKey());
+            }
+            toPrintCopiesList = false;
         }
     }
 }
