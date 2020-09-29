@@ -11,12 +11,12 @@ public class Main {
 
     private static final String secretMessage = "mde18201";
     private static final int port = 6789;
-    private static final String defaultMcastAddressName = "228.5.6.7";
+    private static final String defaultMcastAddressName = "225.0.0.1";
 
-    public static void main(String[] args) {
-        String mcastAddressName;
+    public static void main(final String[] args) {
+        final String mcastAddressName;
         if (args.length > 0) {
-            if (args[0].equals("-h")) {
+            if ("-h".equals(args[0])) {
                 printHelp();
                 return;
             }
@@ -24,53 +24,53 @@ public class Main {
         } else {
             mcastAddressName = defaultMcastAddressName;
         }
-        InetAddress mcastAddress;
+        final InetAddress mcastAddress;
         try {
             mcastAddress = InetAddress.getByName(mcastAddressName);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (final IOException e) {
+            System.err.println("Unknown host");
             printHelp();
             return;
         }
         if (!mcastAddress.isMulticastAddress()) {
             System.err.printf("%s is not a multicast address\n", mcastAddress.getHostAddress());
+            printHelp();
             return;
         }
 
-        List<NetworkInterface> allNetworkInterfaces;
+        final List<NetworkInterface> allNetworkInterfaces;
         try {
             allNetworkInterfaces = getAvailableNetworkInterfaces();
-        } catch (SocketException e) {
-            e.printStackTrace();
+        } catch (final SocketException e) {
+            System.err.println("Could not get available network interfaces");
             return;
         }
 
         System.out.println("Available network interface(s):");
         printInterfaces(allNetworkInterfaces);
 
-        List<NetworkInterface> networkInterfaces = chooseInterfaces(allNetworkInterfaces, args);
+        final List<NetworkInterface> networkInterfaces = chooseInterfaces(allNetworkInterfaces, args);
 
         System.out.println("Chosen network interface(s): ");
         printInterfaces(networkInterfaces);
 
-        Sender sender = new Sender(mcastAddress, networkInterfaces, port, secretMessage);
-        sender.start();
+        final Sender sender;
+        final Listener listener;
+        try {
+            sender = new Sender(mcastAddress, networkInterfaces, port, secretMessage);
+        }catch(final IOException e){
+            System.err.println("Error occurred while creating sender thread");
+            return;
+        }
+        try {
+            listener = new Listener(mcastAddress, networkInterfaces, port, secretMessage);
+        }catch(final IOException e){
+            System.err.println("Error occurred while creating listener thread");
+            return;
+        }
 
-        Listener listener = new Listener(mcastAddress, networkInterfaces, port, secretMessage);
+        sender.start();
         listener.start();
-        try {
-            Thread.sleep(100000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        sender.interrupt();
-        listener.interrupt();
-        try {
-            sender.join();
-            listener.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     private static void printHelp() {
@@ -92,28 +92,29 @@ public class Main {
         }).collect(Collectors.toList());
     }
 
-    public static void printInterfaces(List<NetworkInterface> allNetworkInterfaces) {
-        for (var netif : allNetworkInterfaces) {
+    public static void printInterfaces(final List<NetworkInterface> allNetworkInterfaces) {
+        for (final var netif : allNetworkInterfaces) {
             System.out.println(netif);
         }
     }
 
-    public static List<NetworkInterface> chooseInterfaces(List<NetworkInterface> allNetworkInterfaces, String[] args) {
+    public static List<NetworkInterface> chooseInterfaces(final List<NetworkInterface> allNetworkInterfaces,
+                                                          final String[] args) {
         List<NetworkInterface> networkInterfaces = new ArrayList<>();
-        String netifname;
+        final String netifname;
 
         if (allNetworkInterfaces.size() == 1) {
             networkInterfaces = allNetworkInterfaces;
         } else {
             if (args.length < 2) {
                 System.out.println("Choose network interface");
-                Scanner scanner = new Scanner(System.in);
+                final Scanner scanner = new Scanner(System.in);
                 netifname = scanner.nextLine();
             } else {
                 netifname = args[1];
             }
             boolean found_any = false;
-            for (var netif : allNetworkInterfaces) {
+            for (final var netif : allNetworkInterfaces) {
                 if (netif.getName().contains(netifname)) {
                     found_any = true;
                     networkInterfaces.add(netif);

@@ -5,26 +5,22 @@ import java.net.*;
 import java.util.List;
 
 public class Sender extends Thread {
-    private MulticastSocket socket;
-    private List<NetworkInterface> networkInterfaces;
-    private DatagramPacket packet;
-    private final long SEND_DELAY = 2000;
+    private final MulticastSocket socket;
+    private final List<NetworkInterface> networkInterfaces;
+    private final DatagramPacket packet;
+    private final static long SEND_DELAY = 2000;
 
-    public Sender(InetAddress mcastaddress, List<NetworkInterface> networkInterfaces, int port, String secretMessage) {
-        try {
-            this.networkInterfaces = networkInterfaces;
-            socket = new MulticastSocket();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(0);
-        }
-        packet = new DatagramPacket(secretMessage.getBytes(), secretMessage.length(), mcastaddress, port);
+    public Sender(final InetAddress mcastaddress, final List<NetworkInterface> networkInterfaces,
+                  final int port, final String secretMessage) throws IOException {
+        this.networkInterfaces = networkInterfaces;
+        this.socket = new MulticastSocket();
+        this.packet = new DatagramPacket(secretMessage.getBytes(), secretMessage.length(), mcastaddress, port);
     }
 
-    public void multicastSend() throws IOException {
-        for (var netif : networkInterfaces) {
-            socket.setNetworkInterface(netif);
-            socket.send(packet);
+    private void multicastSend() throws IOException {
+        for (final var netif : this.networkInterfaces) {
+            this.socket.setNetworkInterface(netif);
+            this.socket.send(this.packet);
         }
     }
 
@@ -34,10 +30,7 @@ public class Sender extends Thread {
             try {
                 this.multicastSend();
                 sleep(SEND_DELAY);
-            } catch (InterruptedException ex) {
-                return;
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (final InterruptedException | IOException e) {
                 return;
             }
         }
