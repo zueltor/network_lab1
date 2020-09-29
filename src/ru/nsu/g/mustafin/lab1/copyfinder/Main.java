@@ -13,20 +13,37 @@ public class Main {
     private static final int port = 6789;
     private static final String defaultMcastAddressName = "228.5.6.7";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         String mcastAddressName;
         if (args.length > 0) {
+            if (args[0].equals("-h")) {
+                printHelp();
+                return;
+            }
             mcastAddressName = args[0];
         } else {
             mcastAddressName = defaultMcastAddressName;
         }
-        InetAddress mcastAddress = InetAddress.getByName(mcastAddressName);
+        InetAddress mcastAddress;
+        try {
+            mcastAddress = InetAddress.getByName(mcastAddressName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            printHelp();
+            return;
+        }
         if (!mcastAddress.isMulticastAddress()) {
             System.err.printf("%s is not a multicast address\n", mcastAddress.getHostAddress());
             return;
         }
 
-        List<NetworkInterface> allNetworkInterfaces = getAvailableNetworkInterfaces();
+        List<NetworkInterface> allNetworkInterfaces;
+        try {
+            allNetworkInterfaces = getAvailableNetworkInterfaces();
+        } catch (SocketException e) {
+            e.printStackTrace();
+            return;
+        }
 
         System.out.println("Available network interface(s):");
         printInterfaces(allNetworkInterfaces);
@@ -36,10 +53,10 @@ public class Main {
         System.out.println("Chosen network interface(s): ");
         printInterfaces(networkInterfaces);
 
-        Sender sender = new Sender(mcastAddress, networkInterfaces, 6789, secretMessage);
+        Sender sender = new Sender(mcastAddress, networkInterfaces, port, secretMessage);
         sender.start();
 
-        Listener listener = new Listener(mcastAddress, networkInterfaces, 6789, secretMessage);
+        Listener listener = new Listener(mcastAddress, networkInterfaces, port, secretMessage);
         listener.start();
         try {
             Thread.sleep(10000);
@@ -54,6 +71,12 @@ public class Main {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void printHelp() {
+        System.out.println("Parameters (optional): <mcastaddress> <hint>\n" +
+                "<mcastaddress> - IPv4 or IPv6 multicast address\n" +
+                "<hint> - network interface name, used if there are multiple network interfaces");
     }
 
     public static List<NetworkInterface> getAvailableNetworkInterfaces() throws SocketException {

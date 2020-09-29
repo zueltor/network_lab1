@@ -59,10 +59,7 @@ public class Listener extends Thread {
                     next_print_time = PRINT_DELAY + current_time;
                 } else {
                     receive_timeout = next_print_time - current_time;
-                    System.out.println("ring");
-                    multicastReceive(receive_timeout);
-                    System.out.println("red");
-
+                    this.multicastReceive(receive_timeout);
                 }
             } catch (SocketTimeoutException ignored) {
             } catch (IOException e) {
