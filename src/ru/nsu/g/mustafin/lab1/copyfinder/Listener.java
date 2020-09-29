@@ -11,13 +11,14 @@ public class Listener extends Thread {
     private final long PRINT_DELAY = 5000;
     private final long COPY_DEAD_TIMEOUT = 4000;
     private HashMap<SocketAddress, Long> copiesOnline;
-    private final String secretMessage = "mde18201";
+    private final String secretMessage;
     private boolean toPrintCopiesList = false;
 
-    public Listener(InetAddress group, List<NetworkInterface> networkInterfaces, int port) {
+    public Listener(InetAddress mcastaddress, List<NetworkInterface> networkInterfaces, int port, String secretMessage) {
+        this.secretMessage = secretMessage;
         try {
             socket = new MulticastSocket(port);
-            InetSocketAddress inetSocketAddress = new InetSocketAddress(group, port);
+            InetSocketAddress inetSocketAddress = new InetSocketAddress(mcastaddress, port);
             for (var netif : networkInterfaces) {
                 socket.joinGroup(inetSocketAddress, netif);
             }
@@ -28,10 +29,9 @@ public class Listener extends Thread {
         byte[] buf = new byte[100];
         packet = new DatagramPacket(buf, buf.length);
         copiesOnline = new HashMap<>();
-        //socket.joinGroup(g);
     }
 
-    public void recv(long timeout) throws IOException {
+    public void multicastReceive(long timeout) throws IOException {
         socket.setSoTimeout((int) timeout);
         socket.receive(packet);
         String message = new String(packet.getData()).trim();
@@ -42,7 +42,6 @@ public class Listener extends Thread {
                 toPrintCopiesList = true;
             }
         }
-        //System.out.println(message);
     }
 
 
@@ -60,7 +59,10 @@ public class Listener extends Thread {
                     next_print_time = PRINT_DELAY + current_time;
                 } else {
                     receive_timeout = next_print_time - current_time;
-                    recv(receive_timeout);
+                    System.out.println("ring");
+                    multicastReceive(receive_timeout);
+                    System.out.println("red");
+
                 }
             } catch (SocketTimeoutException ignored) {
             } catch (IOException e) {

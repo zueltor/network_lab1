@@ -8,22 +8,20 @@ public class Sender extends Thread {
     private MulticastSocket socket;
     private List<NetworkInterface> networkInterfaces;
     private DatagramPacket packet;
-    private final String secretMessage = "mde18201";
-    private final long SEND_DELAY=2000;
+    private final long SEND_DELAY = 2000;
 
-    public Sender(InetAddress g,List<NetworkInterface> networkInterfaces, int p) {
+    public Sender(InetAddress mcastaddress, List<NetworkInterface> networkInterfaces, int port, String secretMessage) {
         try {
-            this.networkInterfaces=networkInterfaces;
+            this.networkInterfaces = networkInterfaces;
             socket = new MulticastSocket();
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(0);
         }
-        String msg = secretMessage;
-        packet = new DatagramPacket(msg.getBytes(), msg.length(), g, p);
+        packet = new DatagramPacket(secretMessage.getBytes(), secretMessage.length(), mcastaddress, port);
     }
 
-    public void send() throws IOException {
+    public void multicastSend() throws IOException {
         for (var netif : networkInterfaces) {
             socket.setNetworkInterface(netif);
             socket.send(packet);
@@ -32,11 +30,13 @@ public class Sender extends Thread {
 
     @Override
     public void run() {
-        while (!isInterrupted()) {
+        while (true) {
             try {
-                send();
+                this.multicastSend();
                 sleep(SEND_DELAY);
-            } catch (IOException | InterruptedException e) {
+            } catch (InterruptedException ex) {
+                return;
+            } catch (IOException e) {
                 e.printStackTrace();
                 return;
             }
