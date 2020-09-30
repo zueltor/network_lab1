@@ -7,20 +7,25 @@ import java.util.List;
 public class Sender extends Thread {
     private final MulticastSocket socket;
     private final List<NetworkInterface> networkInterfaces;
-    private final DatagramPacket packet;
+    private final String secretMessage;
     private final static long SEND_DELAY = 2000;
+    private final int port;
+    private final InetAddress mcastAddress;
 
-    public Sender(final InetAddress mcastaddress, final List<NetworkInterface> networkInterfaces,
-                  final int port, final String secretMessage) throws IOException {
+    public Sender(final InetAddress mcastAddress, final List<NetworkInterface> networkInterfaces, final MulticastSocket socket,
+                  final int port, final String secretMessage) {
         this.networkInterfaces = networkInterfaces;
-        this.socket = new MulticastSocket();
-        this.packet = new DatagramPacket(secretMessage.getBytes(), secretMessage.length(), mcastaddress, port);
+        this.socket = socket;
+        this.port=port;
+        this.mcastAddress=mcastAddress;
+        this.secretMessage = secretMessage;
     }
 
     private void multicastSend() throws IOException {
         for (final var netif : this.networkInterfaces) {
             this.socket.setNetworkInterface(netif);
-            this.socket.send(this.packet);
+            final DatagramPacket packet = new DatagramPacket(this.secretMessage.getBytes(), this.secretMessage.length(), this.mcastAddress, this.port);
+            this.socket.send(packet);
         }
     }
 

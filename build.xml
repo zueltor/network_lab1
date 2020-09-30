@@ -10,10 +10,8 @@
     <property name="lib.dir" value="lib/"/>
 
 	<!-- set jar name here -->
-	<property name="serverjar.path"    value="${jar.dir}/server.jar"/>
     <property name="clientjar.path"    value="${jar.dir}/client.jar"/>
 	<!-- Change your main class here: -->
-	<property name="server.class"  value="ru.nsu.g.mustafin.lab1.server.Main" />
     <property name="client.class"  value="ru.nsu.g.mustafin.lab1.copyfinder.Main" />
 
     <path id="classpath.test">
@@ -36,15 +34,6 @@
 				<exclude name="**/*.java"/>
 			</fileset>
 		</copy>
-    </target>
-
-    <target name="serverjar" depends="compile">
-        <mkdir dir="${jar.dir}"/>
-        <jar destfile="${serverjar.path}" basedir="${classes.dir}">
-            <manifest>
-                <attribute name="Main-Class" value="${server.class}"/>
-            </manifest>
-        </jar>
     </target>
 
     <target name="clientjar" depends="compile">
