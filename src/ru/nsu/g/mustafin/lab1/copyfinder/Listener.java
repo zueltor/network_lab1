@@ -3,7 +3,6 @@ package ru.nsu.g.mustafin.lab1.copyfinder;
 import java.io.IOException;
 import java.net.*;
 import java.util.HashMap;
-import java.util.List;
 
 public class Listener extends Thread {
     private final MulticastSocket socket;
@@ -13,15 +12,9 @@ public class Listener extends Thread {
     private final String secretMessage;
     private boolean toPrintCopiesList = false;
 
-    public Listener(final InetAddress mcastaddress, final MulticastSocket socket,
-                    final int port, final String secretMessage) {
+    public Listener(final MulticastSocket socket, final String secretMessage) {
         this.secretMessage = secretMessage;
-        this.socket = socket;// = new MulticastSocket(port);
-        /*final InetSocketAddress inetSocketAddress = new InetSocketAddress(mcastaddress, port);
-        for (final var netif : networkInterfaces) {
-            this.socket.joinGroup(inetSocketAddress, netif);
-        }*/
-
+        this.socket = socket;
         this.copiesOnline = new HashMap<>();
     }
 
