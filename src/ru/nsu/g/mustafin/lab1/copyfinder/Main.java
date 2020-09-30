@@ -62,6 +62,7 @@ public class Main {
                 socket.joinGroup(inetSocketAddress, netif);
             }
         } catch (final IOException e) {
+            e.printStackTrace();
             System.err.println("Could not create multicast socket");
             return;
         }
